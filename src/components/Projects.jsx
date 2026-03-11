@@ -1,94 +1,133 @@
-import React from 'react';
-import { Github, ExternalLink } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { ExternalLink, Github } from 'lucide-react';
+// On importe l'URL de configuration
+import { API_URL } from '../api/config';
+
+// Import Swiper React components & styles
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination, Autoplay, Navigation } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
 
 const Projects = () => {
-  // On prépare le terrain : plus tard, ce tableau "projectsData" 
-  // sera rempli par ton Backend ou un CMS.
-  const projectsData = [
-    {
-      id: 1,
-      title: "Application Web Moderne",
-      description: "Plateforme e-commerce complète avec gestion des commandes et paiements en ligne.",
-      image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97", // Image temporaire
-      tech: ["React", "TypeScript", "Tailwind CSS"],
-      github: "#",
-      demo: "#"
-    },
-    {
-      id: 2,
-      title: "Application Mobile",
-      description: "Interface intuitive pour une application de productivité avec synchronisation cloud.",
-      image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c",
-      tech: ["React Native", "Node.js", "MongoDB"],
-      github: "#",
-      demo: "#"
-    },
-    {
-      id: 3,
-      title: "Projet Créatif",
-      description: "Portfolio interactif avec animations et transitions fluides pour artiste numérique.",
-      image: "https://images.unsplash.com/photo-1558655146-d09347e92766",
-      tech: ["Next.js", "Motion", "Three.js"],
-      github: "#",
-      demo: "#"
-    }
-  ];
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        // Utilisation de ${API_URL} au lieu de localhost
+        const res = await axios.get(`${API_URL}/api/projects/all`);
+        setProjects(res.data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Erreur lors de la récupération des projets:", err);
+        setLoading(false);
+      }
+    };
+    fetchProjects();
+  }, []);
 
   return (
-    <section id="projects" className="py-24">
-      {/* Header de section identique à la maquette */}
-      <div className="text-center mb-16 space-y-4">
-        <span className="px-4 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-gray-400">
-          Projets
-        </span>
-        <h2 className="text-4xl md:text-5xl font-bold text-white">Mes réalisations</h2>
-        <p className="text-gray-400 max-w-2xl mx-auto">
-          Découvrez une sélection de mes projets récents, démontrant mes compétences en développement et design.
-        </p>
-      </div>
+    <section id="projects" className="py-20 px-4">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col items-center mb-12 text-center">
+          <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
+            Mes Réalisations
+          </h2>
+          <div className="h-1 w-20 bg-sky-500 rounded-full"></div>
+        </div>
 
-      {/* Grille de projets */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {projectsData.map((project) => (
-          <div key={project.id} className="group bg-[#161D2F] rounded-3xl overflow-hidden border border-white/5 hover:border-white/20 transition-all">
-            {/* Image du projet */}
-            <div className="h-64 overflow-hidden">
-              <img 
-                src={project.image} 
-                alt={project.title}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-            </div>
-
-            {/* Contenu de la carte */}
-            <div className="p-8 space-y-4">
-              <h3 className="text-2xl font-bold text-white">{project.title}</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                {project.description}
-              </p>
-
-              {/* Badges Tech */}
-              <div className="flex flex-wrap gap-2 pt-2">
-                {project.tech.map((t) => (
-                  <span key={t} className="px-3 py-1 bg-[#0B1120] text-xs font-medium text-gray-300 rounded-full border border-white/5">
-                    {t}
-                  </span>
-                ))}
-              </div>
-
-              {/* Liens Code & Démo */}
-              <div className="flex gap-6 pt-4">
-                <a href={project.github} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
-                  <Github size={18} /> Code
-                </a>
-                <a href={project.demo} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
-                  <ExternalLink size={18} /> Démo
-                </a>
-              </div>
-            </div>
+        {loading ? (
+          <div className="text-center py-20">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-sky-500"></div>
+            <p className="mt-4 text-gray-500 italic">Récupération des projets sur le serveur...</p>
           </div>
-        ))}
+        ) : projects.length > 0 ? (
+          <Swiper
+            modules={[Pagination, Autoplay, Navigation]}
+            spaceBetween={30}
+            slidesPerView={1}
+            navigation={true}
+            pagination={{ clickable: true }}
+            autoplay={{ delay: 5000, disableOnInteraction: false }}
+            breakpoints={{
+              768: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 },
+            }}
+            className="pb-14 admin-swiper"
+          >
+            {projects.map((project) => (
+              <SwiperSlide key={project._id}>
+                <div className="bg-[#161D2F]/50 backdrop-blur-xl border border-white/10 rounded-[2.5rem] overflow-hidden h-full flex flex-col hover:border-sky-500/50 transition-all duration-500 group">
+                  <div className="relative h-56 overflow-hidden">
+                    <img 
+                      src={project.image} 
+                      alt={project.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                  </div>
+                  <div className="p-8 flex-1 flex flex-col">
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {project.technologies.map(tech => (
+                        <span key={tech} className="text-[10px] font-bold uppercase px-3 py-1 bg-sky-500/10 text-sky-400 rounded-full border border-sky-500/20">
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                    <h3 className="text-2xl font-bold mb-3 text-white group-hover:text-sky-400 transition-colors">
+                        {project.title}
+                    </h3>
+                    <p className="text-gray-400 text-sm mb-6 line-clamp-3 leading-relaxed">
+                        {project.description}
+                    </p>
+                    <div className="mt-auto flex items-center gap-4">
+                      <a 
+                        href={project.githubLink} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="p-3 bg-white/5 rounded-2xl text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+                      >
+                        <Github size={20} />
+                      </a>
+                      <a 
+                        href={project.demoLink} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex-1 text-center py-3 bg-sky-500 hover:bg-sky-600 rounded-2xl text-white font-bold transition-all shadow-lg shadow-sky-500/20 active:scale-95"
+                      >
+                        Voir Live
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        ) : (
+          <div className="text-center py-20 bg-white/5 rounded-[2.5rem] border border-dashed border-white/10">
+            <p className="text-gray-500">Aucun projet n'est disponible pour le moment.</p>
+          </div>
+        )}
       </div>
+
+      <style>{`
+        .swiper-button-next, .swiper-button-prev {
+          color: #0ea5e9 !important;
+          transform: scale(0.6);
+        }
+        .swiper-pagination-bullet {
+          background: #334155 !important;
+          opacity: 1;
+        }
+        .swiper-pagination-bullet-active {
+          background: #0ea5e9 !important;
+          width: 20px;
+          border-radius: 5px;
+        }
+      `}</style>
     </section>
   );
 };

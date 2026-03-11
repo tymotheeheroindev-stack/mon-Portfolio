@@ -3,6 +3,8 @@ import axios from 'axios';
 import { ExternalLink, Github } from 'lucide-react';
 // On importe l'URL de configuration
 import { API_URL } from '../api/config';
+import { motion } from 'framer-motion';
+
 
 // Import Swiper React components & styles
 import { Swiper, SwiperSlide } from 'swiper/react';

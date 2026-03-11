@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 // On n'oublie pas l'import de la config
 import { API_URL } from '../api/config';
+import { motion } from 'framer-motion';
 
 const Login = () => {
   const [password, setPassword] = useState('');

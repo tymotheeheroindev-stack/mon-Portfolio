@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { LogOut, Trash2, Edit3, PlusCircle, Eye } from 'lucide-react';
 // On importe l'URL de configuration que tu as créée dans src/api/config.js
 import { API_URL } from '../api/config'; 
+import { motion } from 'framer-motion';
 
 const AdminDashboard = () => {
   const [projects, setProjects] = useState([]);
